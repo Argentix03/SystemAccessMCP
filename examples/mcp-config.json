@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "system-access-guest": {
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\Tester\\Desktop\\SystemAccessMCP\\Start-McpServer.ps1",
+        "-Profile",
+        "GuestDesktop"
+      ]
+    }
+  }
+}

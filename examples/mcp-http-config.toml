@@ -1,0 +1,5 @@
+[mcp_servers."vm-desktop"]
+url = "http://VM-IP-OR-NAME:8766/mcp"
+
+[mcp_servers."hyperv-host"]
+url = "http://HOST-IP-OR-NAME:8766/mcp"
