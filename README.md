@@ -30,7 +30,14 @@ human operating from inside the VM can still interact with those secure surfaces
 
 For agent usage patterns and server-selection guidance, see
 [docs/agent-usage.md](docs/agent-usage.md). A Codex-compatible skill is also
-packaged at [skills/system-access-mcp](skills/system-access-mcp).
+packaged at [skills/system-access-mcp](skills/system-access-mcp). Project-level
+adapter files are included for common agent conventions:
+
+- `AGENTS.md` for agents that scan repo-level agent instructions, including
+  Antigravity-style workflows.
+- `GEMINI.md` for Gemini-style repo instructions.
+- `CLAUDE.md` and `.claude/skills/system-access-mcp/SKILL.md` for Claude Code
+  workflows.
 
 ## Requirements
 
