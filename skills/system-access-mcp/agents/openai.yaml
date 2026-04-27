@@ -1,0 +1,3 @@
+display_name: System Access MCP
+short_description: Choose GuestDesktop or HostHyperV for Windows UI control.
+default_prompt: Use the SystemAccessMCP workflow to choose the right server profile and interact with Windows desktop, VMConnect, UAC, lock screen, or login surfaces.

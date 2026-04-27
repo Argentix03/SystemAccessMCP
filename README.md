@@ -28,6 +28,10 @@ process cannot see or control, such as logon, lock screen, and UAC prompts. The
 guest web UI can proxy Hyper-V actions to the host web server, so an agent or
 human operating from inside the VM can still interact with those secure surfaces.
 
+For agent usage patterns and server-selection guidance, see
+[docs/agent-usage.md](docs/agent-usage.md). A Codex-compatible skill is also
+packaged at [skills/system-access-mcp](skills/system-access-mcp).
+
 ## Requirements
 
 - Windows PowerShell 5.1

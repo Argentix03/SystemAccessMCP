@@ -55,6 +55,20 @@ function Get-McpAllowedToolNames {
     }
 }
 
+function Get-McpProfileDescription {
+    switch ($script:McpProfile) {
+        "GuestDesktop" {
+            return "GuestDesktop controls and observes the current interactive Windows desktop from inside the machine or VM. Use it for normal signed-in desktop work. It cannot see UAC secure desktop, lock screen, logon, or Winlogon surfaces from inside the guest; use HostHyperV for those."
+        }
+        "HostHyperV" {
+            return "HostHyperV controls Hyper-V VMConnect windows from the host. Use it for VM login screens, lock screens, Winlogon, UAC secure desktop prompts, and cases where in-guest desktop automation cannot see or interact with the screen."
+        }
+        default {
+            return "All exposes both GuestDesktop and HostHyperV tools. Use GuestDesktop-style tools for normal desktop work and Hyper-V VMConnect tools for guest login, lock screen, Winlogon, and UAC secure desktop surfaces."
+        }
+    }
+}
+
 function Write-McpMessage {
     param(
         [Parameter(Mandatory = $true)]
@@ -158,7 +172,7 @@ function Get-McpTools {
     $tools = @(
         [pscustomobject]@{
             name = "system_status"
-            description = "Return provider scope, current user, and virtual screen metadata."
+            description = "Return provider scope, current user, virtual screen metadata, and the current desktop-session boundary."
             inputSchema = [pscustomobject]@{
                 type = "object"
                 properties = [pscustomobject]@{}
@@ -167,7 +181,7 @@ function Get-McpTools {
         },
         [pscustomobject]@{
             name = "screenshot"
-            description = "Capture the current signed-in user desktop as PNG image content."
+            description = "Capture the current interactive desktop as PNG image content. In GuestDesktop this is the in-guest signed-in desktop and does not cover secure desktop, lock screen, logon, or UAC prompts."
             inputSchema = [pscustomobject]@{
                 type = "object"
                 properties = [pscustomobject]@{}
@@ -229,7 +243,7 @@ function Get-McpTools {
         },
         [pscustomobject]@{
             name = "cursor_state"
-            description = "Return the current host mouse cursor position and virtual screen metadata."
+            description = "Return current mouse cursor position and virtual screen metadata for the machine running this MCP server."
             inputSchema = [pscustomobject]@{
                 type = "object"
                 properties = [pscustomobject]@{}
@@ -238,7 +252,7 @@ function Get-McpTools {
         },
         [pscustomobject]@{
             name = "window_foreground"
-            description = "Return metadata for the current foreground host window."
+            description = "Return metadata for the current foreground window on the machine running this MCP server."
             inputSchema = [pscustomobject]@{
                 type = "object"
                 properties = [pscustomobject]@{}
@@ -247,7 +261,7 @@ function Get-McpTools {
         },
         [pscustomobject]@{
             name = "window_hover"
-            description = "Return host window/control metadata for what the mouse is currently hovering over."
+            description = "Return window/control metadata for what the mouse is currently hovering over on the machine running this MCP server."
             inputSchema = [pscustomobject]@{
                 type = "object"
                 properties = [pscustomobject]@{}
@@ -256,7 +270,7 @@ function Get-McpTools {
         },
         [pscustomobject]@{
             name = "window_from_point"
-            description = "Return host window/control metadata at a screen coordinate."
+            description = "Return window/control metadata at a screen coordinate on the machine running this MCP server."
             inputSchema = [pscustomobject]@{
                 type = "object"
                 properties = [pscustomobject]@{
@@ -268,7 +282,7 @@ function Get-McpTools {
         },
         [pscustomobject]@{
             name = "window_list"
-            description = "List visible top-level host windows with titles, processes, and rectangles."
+            description = "List visible top-level windows with titles, processes, and rectangles on the machine running this MCP server."
             inputSchema = [pscustomobject]@{
                 type = "object"
                 properties = [pscustomobject]@{
@@ -280,7 +294,7 @@ function Get-McpTools {
         },
         [pscustomobject]@{
             name = "screen_state"
-            description = "Return a combined host desktop observation snapshot with cursor, foreground, and hover window metadata."
+            description = "Return a combined desktop observation snapshot with cursor, foreground window, hover window, virtual screen, and optional visible windows."
             inputSchema = [pscustomobject]@{
                 type = "object"
                 properties = [pscustomobject]@{
@@ -292,7 +306,7 @@ function Get-McpTools {
         },
         [pscustomobject]@{
             name = "hyperv_status"
-            description = "Return Hyper-V/VMConnect availability and open console window metadata."
+            description = "Return Hyper-V/VMConnect availability and open console window metadata from the host. Use HostHyperV for guest login, lock screen, Winlogon, and UAC secure desktop surfaces."
             inputSchema = [pscustomobject]@{
                 type = "object"
                 properties = [pscustomobject]@{}
@@ -352,7 +366,7 @@ function Get-McpTools {
         },
         [pscustomobject]@{
             name = "hyperv_console_pointer_state"
-            description = "Return current host cursor position mapped relative to a VMConnect console window and client area."
+            description = "Return current host cursor position mapped relative to a VMConnect window and client area. Use after moving and before clicking to verify insideClient and relativeToClient."
             inputSchema = [pscustomobject]@{
                 type = "object"
                 properties = [pscustomobject]@{
@@ -365,7 +379,7 @@ function Get-McpTools {
         },
         [pscustomobject]@{
             name = "hyperv_console_screenshot"
-            description = "Capture an open VMConnect console window as PNG image content."
+            description = "Capture an open VMConnect console as PNG image content from the host. Use area='client' for guest UI coordinates, including login, lock screen, Winlogon, and UAC prompts."
             inputSchema = [pscustomobject]@{
                 type = "object"
                 properties = [pscustomobject]@{
@@ -379,7 +393,7 @@ function Get-McpTools {
         },
         [pscustomobject]@{
             name = "hyperv_console_mouse_move"
-            description = "Move the host mouse to a coordinate inside a VMConnect console screenshot."
+            description = "Move the host mouse to a coordinate inside a VMConnect console screenshot. Prefer coordinates from a client-area screenshot."
             inputSchema = [pscustomobject]@{
                 type = "object"
                 properties = [pscustomobject]@{
@@ -396,7 +410,7 @@ function Get-McpTools {
         },
         [pscustomobject]@{
             name = "hyperv_console_mouse_click"
-            description = "Click inside a VMConnect console screenshot."
+            description = "Click inside a VMConnect console screenshot. Prefer move plus hyperv_console_pointer_state verification before clicking."
             inputSchema = [pscustomobject]@{
                 type = "object"
                 properties = [pscustomobject]@{
@@ -415,7 +429,7 @@ function Get-McpTools {
         },
         [pscustomobject]@{
             name = "hyperv_console_keyboard_type"
-            description = "Type Unicode text into the active VMConnect console."
+            description = "Type Unicode text into the active VMConnect console, including guest login or UAC surfaces reachable through the host console."
             inputSchema = [pscustomobject]@{
                 type = "object"
                 properties = [pscustomobject]@{
@@ -430,7 +444,7 @@ function Get-McpTools {
         },
         [pscustomobject]@{
             name = "hyperv_console_keyboard_key"
-            description = "Send a virtual-key press/down/up event to the active VMConnect console."
+            description = "Send a virtual-key press/down/up event to the active VMConnect console, including guest secure/logon surfaces reachable through VMConnect."
             inputSchema = [pscustomobject]@{
                 type = "object"
                 properties = [pscustomobject]@{
@@ -730,6 +744,7 @@ function Invoke-McpRequest {
                     name = "system-access-mcp"
                     version = "0.1.0"
                     profile = $script:McpProfile
+                    description = (Get-McpProfileDescription)
                 }
             }))
         }
