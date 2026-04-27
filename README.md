@@ -1,20 +1,32 @@
 # SystemAccessMCP
 
-Local Windows interaction tooling exposed through:
+Simple MCP and HTTP API servers that expose an interactive
+screen/mouse/keyboard interface for Windows machines.
 
-- a localhost-only web API and small developer UI
+The project can run in two complementary places:
+
+- **Inside a Windows machine or VM** with the `GuestDesktop` profile, exposing
+  the current interactive desktop, screenshots, mouse and keyboard input, cursor
+  position, focused/hovered windows, window hit-testing, and visible window
+  geometry.
+- **On a Hyper-V host** with the `HostHyperV` profile, exposing VMConnect-based
+  control of guest VMs from outside the guest OS. This reaches VM login screens,
+  lock screens, Winlogon surfaces, and UAC secure desktop prompts because input
+  and screenshots are applied to the VM console from the host side.
+
+The same codebase also provides:
+
 - a stdio MCP server for AI clients
-- a localhost MCP-over-HTTP server for clients that should connect to an
-  already-running elevated process
+- an MCP-over-HTTP server for already-running elevated processes
+- a web API and small human testing UI
+- network-capable host/guest operation with explicit `-ListenAddress` and
+  `-HyperVApiBaseUrl` options
 
-This implementation intentionally uses supported Windows user-session APIs. It can
-capture and control the currently active interactive desktop for the signed-in
-user. It does **not** bypass Windows secure desktop, UAC prompts, the lock screen,
-or the logon screen from inside the guest OS.
-
-For VM-wide access that works at guest logon/UAC, run this project on the host and
-use the Hyper-V VMConnect provider. It controls the VM console from outside the
-guest OS.
+A common setup is to run `GuestDesktop` inside the VM for normal desktop
+automation, and run `HostHyperV` on the Hyper-V host for cases the in-guest
+process cannot see or control, such as logon, lock screen, and UAC prompts. The
+guest web UI can proxy Hyper-V actions to the host web server, so an agent or
+human operating from inside the VM can still interact with those secure surfaces.
 
 ## Requirements
 
